@@ -1,0 +1,7 @@
+#!/bin/bash
+F=$(echo $1 | sed 's/\.rl//')
+
+ragel -pV $F.rl > $F.dot
+dot -Tpng $F.dot > $F.png
+display $F.png
+rm $F.dot $F.png

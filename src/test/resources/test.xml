@@ -1,0 +1,12 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:blog="http://www.w3.org/1999/xhtml">
+  <body>
+  <p>Text before pre tag</p>
+  <blog:pre>
+    public static void main(String[] args) {
+    	System.out.println("Hello World");
+    }
+  </blog:pre>
+  <p>Text after pre tag </p>
+  </body>
+</html>
