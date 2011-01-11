@@ -6,11 +6,22 @@ require 'time'
 
 THIS_VERSION = '0.1'
 
+layout = Layout.new
+layout[:source, :main, :java] = 'src/main/java'
+layout[:source, :test, :java] = 'src/test/java'
+
 desc 'codeblockparser'
-define 'codeblockparser' do
+define 'codeblockparser', :layout=>layout do
   eclipse.natures 'org.eclipse.jdt.core.javanature'
   eclipse.builders 'org.eclipse.jdt.core.javabuilder'
-  compile.with 'junit:junit:jar:4.8.2'
+  compile.with 'commons-io:commons-io:jar:2.0'
+  #test.with 'junit:junit:jar:4.8.2'
+  test.with 'org.mockito:mockito-core:jar:1.8.5'
+  compile.with( 
+    'org.slf4j:slf4j-log4j12:jar:1.6.1',
+    'org.slf4j:slf4j-api:jar:1.6.1',
+    'log4j:log4j:jar:1.2.16'
+  )
 
   project.group = 'de.entwicklerland'
   project.version = THIS_VERSION
