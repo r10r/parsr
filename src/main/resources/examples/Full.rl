@@ -45,7 +45,7 @@ public static void main(String... argv) {
   int te;
 
   %% write init;
-  %% write exec fcall;
+  %% write exec;
 
   %%{
       action some_action {

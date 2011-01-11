@@ -2,7 +2,7 @@
   xmlns:blog="http://www.w3.org/1999/xhtml">
   <body>
   <p>Text before pre tag</p>
-  <blog:pre>
+  <blog:pre class="lang:java">
     public static void main(String[] args) {
     	System.out.println("Hello World");
     }
