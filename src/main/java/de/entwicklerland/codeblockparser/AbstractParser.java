@@ -128,5 +128,8 @@ public abstract class AbstractParser {
 	
 	abstract void parse(char[] text);
 	
+	public void mark(String name) {
+		
+	}
 	
 }

@@ -14,6 +14,8 @@ public CodeBlockParser (AbstractContentHandler contentHandler) {
   may be modified from outside the execution loop, but not from within. */
 
  private int cs;
+ 
+ private int startPointer;
 
   %% write init;
   
@@ -44,18 +46,22 @@ public void parse(char[] input) {
     namespace = 'blog';
     namespace_separator = ':';
 
+	action attribute_name {
+		markers.close("UPPER", bp(), p);
+	}
+
     # HTML 4.01 p.30
-    attribute_name = lower+ $print;
+    attribute_name = (lower+) >{markers.open("ATTRIBUTE_NAME", bp(), p);} %{markers.close("ATTRIBUTE_NAME", bp(), p);};
     # HTML 4.01 p.30
     # TODO implement double and single quote mechanism
-    attribute_value = (any - '"')+;
+    attribute_value = (any - '"')+ >{markers.open("ATTRIBUTE_NAME", bp(), p);} %{markers.close("ATTRIBUTE_NAME", bp(), p);};
     attribute = attribute_name '="' attribute_value '"'; 
     tag_open = '<';
     tag_close = '>';
     
     pre_tag = tag_open namespace namespace_separator 'pre' (any -- tag_close);
 #   main := /[a-z][a-z]*/ - ( 'for' | 'int' ); 
-    main := attribute @print;
+    main := attribute ${ startPointer = p };
 
   }%%
 }

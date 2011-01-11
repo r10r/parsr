@@ -1,16 +1,13 @@
 package de.entwicklerland.codeblockparser;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -82,10 +79,10 @@ public class ParserTest {
 	
 	@Test
 	public void testSimpleContentHandler() throws IOException {
-		SimpleContentHandler sch = new SimpleContentHandler(21);
-		TestPointerParser parser = new TestPointerParser(sch);
+		SimpleContentHandler contentHandler = new SimpleContentHandler(21);
+		TestPointerParser parser = new TestPointerParser(contentHandler);
 		parser.parse(IOUtils.toInputStream("aaaaaaaaaABCDEFGHIJKLaaaa"));
-		System.out.println(sch.markers);
+		System.out.println(contentHandler.markers);
 	}
 	
 	/**
