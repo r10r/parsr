@@ -1,6 +1,7 @@
 package de.entwicklerland.codeblockparser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -53,15 +54,14 @@ public class ParserTest {
 	@Test
 	public void testPassingPointers() throws IOException {
 		
+		final StringBuilder sb = new StringBuilder();
 		
 		AbstractContentHandler contentHandler = 
 		new AbstractContentHandler(2) {
 			
-			public String content;
-
 			@Override
 			public void processEvent(Marker marker) {
-				content = parser.getContent(marker);
+				sb.append(parser.getContent(marker));
 			}
 			
 		};	
@@ -71,7 +71,7 @@ public class ParserTest {
 		// an event with pointers
 		parser.parse(IOUtils.toInputStream("aaABCDEFGaa"));
 		
-//		assertEquals("ABCDEFG", contentHandler.content);
+		assertEquals("ABCDEFG", sb.toString());
 		
 	}
 	
@@ -111,6 +111,18 @@ public class ParserTest {
 		assertEquals(3, cache.getLowestUsedBuffer());
 		cache.close("FIRST", 2, 103);
 		assertEquals(-1, cache.getLowestUsedBuffer());
+		
+	}
+	
+	@Test
+	public void testCodeBlockParser() throws IOException {
+		CodeBlockContentHandler contentHandler = new CodeBlockContentHandler(10);
+		CodeBlockParser parser = new CodeBlockParser(contentHandler);
+		InputStream input = IOUtils.toInputStream("aaaa=\"bbbb\" cccc=\"dddd\"");
+		parser.parse(input);
+		assertEquals(2, contentHandler.getAttributes().size());
+		assertEquals(contentHandler.getAttributes().get("aaaa"), "bbbb");
+		assertEquals(contentHandler.getAttributes().get("cccc"), "dddd");
 		
 	}
 	
