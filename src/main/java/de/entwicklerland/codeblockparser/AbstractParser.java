@@ -19,7 +19,23 @@ public abstract class AbstractParser {
 	private final int bufferSize;
 	private final List<char[]> bufferCache = new LinkedList<char[]>();
 	private int nextBuffer = 0;
-	public final MarkerCache markers = new MarkerCache(this);
+	private final MarkerCache markerCache = new MarkerCache(this);
+	
+	public MarkerCache getMarkerCache() {
+		return markerCache;
+	}
+
+	// ragel variables
+	  /* Current state. This must be an integer and it should persist across invocations of the
+	  machine when the data is broken into blocks that are processed independently. This variable
+	  may be modified from outside the execution loop, but not from within. */
+	 int cs;
+	 int ts;
+	 int te;
+	 int act;
+	 int p;
+	 
+	 char[] data; 
 	
 	/**
 	 * 
@@ -118,7 +134,7 @@ public abstract class AbstractParser {
 		
 		// TODO reset parser
 		bufferCache.clear();
-		markers.reset();
+		markerCache.reset();
 		
 	}
 	
@@ -128,8 +144,12 @@ public abstract class AbstractParser {
 	
 	abstract void parse(char[] text);
 	
-	public void mark(String name) {
-		
+	public void mopen(String label) {
+		this.markerCache.open(label, bp(), p);
+	}
+	
+	public void mclose(String label) {
+		this.markerCache.close(label, bp(), p);
 	}
 	
 }

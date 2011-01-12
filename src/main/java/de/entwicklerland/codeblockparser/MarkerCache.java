@@ -11,20 +11,13 @@ public class MarkerCache {
 	private static final Logger LOG = LoggerFactory.getLogger(MarkerCache.class);
 	
 	private final Map<String,Marker> markers = new HashMap<String, Marker>();
-	private int openMarkers;
 	private AbstractParser parser;
 	
 	public MarkerCache(AbstractParser parser) {
 		this.parser = parser;
 	}
-	
-	public int getOpenMarkers() {
-		return openMarkers;
-	}
-	
 	public void open(String label, int startBuffer, int startPointer) {
 		markers.put(label, new Marker(label, startBuffer, startPointer));
-		openMarkers++;
 	}
 	
 	/**
@@ -42,19 +35,17 @@ public class MarkerCache {
 	}
 	
 	public void close(String label, int endBuffer, int endPointer) {
-		Marker marker = markers.get(label);
+		Marker marker = markers.remove(label);
 		if (marker == null) {
 			LOG.error("No such marker[{}]", label);
 		} else {
 			marker.close(endBuffer, endPointer);
 			parser.getContentHandler().processEvent(marker);
-			openMarkers--;
 		}
 	}
 	
 	public void reset() {
 		markers.clear();
-		openMarkers = 0;
 	}
 	
 }

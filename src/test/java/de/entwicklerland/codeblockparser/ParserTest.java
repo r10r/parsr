@@ -53,13 +53,15 @@ public class ParserTest {
 	@Test
 	public void testPassingPointers() throws IOException {
 		
+		
 		AbstractContentHandler contentHandler = 
-		new AbstractContentHandler(1) {
+		new AbstractContentHandler(2) {
 			
+			public String content;
+
 			@Override
 			public void processEvent(Marker marker) {
-				System.out.println(marker);
-				System.out.println(parser.getContent(marker));
+				content = parser.getContent(marker);
 			}
 			
 		};	
@@ -67,13 +69,48 @@ public class ParserTest {
 		TestPointerParser parser = new TestPointerParser(contentHandler);
 		// create content handler that accepts 
 		// an event with pointers
-		parser.parse(IOUtils.toInputStream("aaAAaa"));
+		parser.parse(IOUtils.toInputStream("aaABCDEFGaa"));
 		
+//		assertEquals("ABCDEFG", contentHandler.content);
 		
-		// invoke parser
+	}
+	
+	@Test
+	public void testMarkerCacheHandling() {
+	AbstractContentHandler ch = new AbstractContentHandler(2) {
 		
-		// 
+		@Override
+		public void processEvent(Marker marker) {
+			System.out.println(marker);
+			
+		}
+	};
 		
+	
+	AbstractParser parser = new AbstractParser(ch) {
+		
+		@Override
+		void parse(char[] text) {
+			// TODO Auto-generated method stub
+			
+			}
+		};
+		
+		MarkerCache cache = parser.getMarkerCache();
+
+		assertEquals(-1, cache.getLowestUsedBuffer());
+		cache.open("FIRST", 3, 99);
+		assertEquals(3, cache.getLowestUsedBuffer());
+		cache.open("SECOND", 1, 99);
+		assertEquals(1, cache.getLowestUsedBuffer());
+		cache.close("SECOND", 2, 103);
+		assertEquals(3, cache.getLowestUsedBuffer());
+		cache.open("THIRD", 2, 99);
+		assertEquals(2, cache.getLowestUsedBuffer());
+		cache.close("THIRD", 2, 103);
+		assertEquals(3, cache.getLowestUsedBuffer());
+		cache.close("FIRST", 2, 103);
+		assertEquals(-1, cache.getLowestUsedBuffer());
 		
 	}
 	
