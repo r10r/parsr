@@ -17,16 +17,15 @@ public class ParserTest {
 	public void testContentHandlerRegistration() throws IOException {
 		
 		String inputData = "aaaaAAAA\n";
-		InputStream input = IOUtils.toInputStream(inputData);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		
 		// create simple content handler
 		ContentHandler contentHandler = new ContentHandler() {
 			
 			@Override
-			public void process(Match match, OutputStream output) throws IOException {
+			public void process(Match match, StringBuilder buffer, OutputStream output) throws IOException {
 				OutputStreamWriter writer = new OutputStreamWriter(output);
-				writer.write(match.getContent());
+				writer.write(match.getContent(buffer));
 				writer.flush();
 			}
 		};
@@ -35,10 +34,10 @@ public class ParserTest {
 		final String event = "pushback";
 		String event2 = "someother";
 		
-		Parser parser = new Parser(input, output) {
+		Parser parser = new Parser() {
 			@Override
 			void parse(char[] text) throws IOException {
-				Match match = new Match(event, buffer, 0, text.length);
+				Match match = new Match(event, 0, text.length);
 				notifyHandlers(match);
 			}
 		};
@@ -69,17 +68,18 @@ public class ParserTest {
 		
 		// check event handling for specific event
 		parser.registerTo(event, contentHandler);
-		parser.parse();
+		parser.parse(inputData, output);
 		assertEquals(inputData, output.toString());
-		parser.reset();
 		
 		// check event handling for wildcard events
 		parser.unregisterFromAll(contentHandler);
 		parser.registerToAll(contentHandler);
-		parser.parse();
+		output.reset();
+		parser.parse(inputData, output);
 		assertEquals(inputData, output.toString());
 		
-		parser.parse(inputData);
+		output.reset();
+		parser.parse(inputData, output);
 		assertEquals(inputData, output.toString());
 		
 		

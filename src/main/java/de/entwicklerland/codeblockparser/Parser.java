@@ -5,26 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.StringWriter;
-import java.nio.CharBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Observable;
 import java.util.Set;
 import java.util.Stack;
 
-import javax.sql.rowset.FilteredRowSet;
-
-import org.apache.commons.io.IOUtils;
-import org.mockito.cglib.core.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,16 +27,17 @@ public abstract class Parser {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Parser.class);
 
-	private final BufferedReader inputReader;
-	private final PipedInputStream pipedInput = new PipedInputStream();
-	protected final OutputStream output;
-	protected final Map<String, Set<ContentHandler>> contentHandlers = new HashMap<String,Set<ContentHandler>>();
-	protected final Set<ContentHandler> wildcardContentHandlers = new HashSet<ContentHandler>();
+	private BufferedReader inputReader;
+	private OutputStream output;
+	private final Map<String, Set<ContentHandler>> contentHandlers = new HashMap<String,Set<ContentHandler>>();
+	private final Set<ContentHandler> wildcardContentHandlers = new HashSet<ContentHandler>();
 	
 	protected StringBuilder buffer = new StringBuilder();
 	private final Stack<Match> markerStack = new Stack<Match>();
 	
 	private static final String ALL = "*";
+	
+	private int processingPointer;
 	
 	// ragel variables
 	  /* Current state. This must be an integer and it should persist across invocations of the
@@ -62,12 +49,8 @@ public abstract class Parser {
 	 int act;
 	 int p;
 	 
-	 char[] data;
-
-	private PipedOutputStream pipedOutput; 
-	 
-	 public char[] getData() {
-		return data;
+	 public void setCs(int cs) {
+		this.cs = cs;
 	}
 	 
 	 public Map<String, Set<ContentHandler>> getContentHandlers() {
@@ -78,47 +61,39 @@ public abstract class Parser {
 		return wildcardContentHandlers;
 	}
 	
-	public void parse(String input) throws IOException {
-		for (char c : input.toCharArray()) {
-			pipedOutput.write(c);
-			pipedOutput.flush();
-		}
-		parse();
+	public void parse(String input, OutputStream output) throws IOException {
+		this.output = output;
+		processingPointer = buffer.length();
+		buffer.append(input);
+		parse(input.toCharArray());
+		reset();
 	}
 	
-	/**
-	 * 
-	 * @param contentHandler
-	 * @param bufferCacheSize size of cache used for maintaining subsequent buffers
-	 */
-	public Parser(InputStream input, OutputStream output) {
-		inputReader = new BufferedReader(new InputStreamReader(pipedInput));
-		pipedOutput = new PipedOutputStream();
-		try {
-			pipedInput.connect(pipedOutput);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	public void parse(InputStream input, OutputStream output) throws IOException {
 		this.output = output;
-	}
-
-	public void parse() throws IOException {
+		this.inputReader = new BufferedReader(new InputStreamReader(input));
+		processingPointer = buffer.length();
+		
 		String line;
 		while ((line = inputReader.readLine()) != null) {
 			buffer.append(line);
 			parse(line.toCharArray());
 		}
+		reset();
 	}
 
 	abstract void parse(char[] text) throws IOException;
 	
-	public void mopen(String label) {
-		this.markerStack.push(new Match(label, buffer, p));
+	public void beginMatch(String event) {
+		LOG.debug("begin match: label[{}], position[{}], state[{}]", new Object[]{event, p, cs});
+		this.markerStack.push(new Match(event, buffer, p));
 	}
 	
-	public void mclose() {
+	public void endLastMatch() {
 		Match match = this.markerStack.pop();
 		match.setEndPointer(p);
+		LOG.debug("end match: label[{}], position[{}], state[{}], content[{}]", 
+				new Object[]{match.getEvent(), p, cs, match.getContent(buffer)});
 		try {
 			notifyHandlers(match);
 		} catch (IOException e) {
@@ -126,9 +101,12 @@ public abstract class Parser {
 		}
 	}
 	
+	/**
+	 * Write current character to output stream
+	 */
 	public void write() {
 		try {
-			this.output.write(data[p]);
+			this.output.write(buffer.charAt(processingPointer+p));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -138,7 +116,7 @@ public abstract class Parser {
 		buffer.delete(0, end);
 	}
 	
-	public void reset() {
+	private void reset() {
 		buffer = new StringBuilder();
 	}
 
@@ -152,13 +130,13 @@ public abstract class Parser {
 	public void notifyHandlers(Match match) throws IOException {
 
 		for (ContentHandler handler : wildcardContentHandlers) {
-			handler.process(match, output);
+			handler.process(match, buffer, output);
 		}
 		
 		Set<ContentHandler> specificListerns = contentHandlers.get(match.getEvent());
 		if (specificListerns != null) {
 			for(ContentHandler handler: specificListerns) {
-				handler.process(match, output);
+				handler.process(match, buffer, output);
 			}
 		}
 		

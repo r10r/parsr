@@ -2,18 +2,16 @@ package de.entwicklerland.codeblockparser;
 
 public class Match {
 	private final String event;
-	private final StringBuilder buffer;
 	private final int startPointer;
 
 	private int endPointer;
 	
 	public Match(String name, StringBuilder buffer, int startPointer) {
-		this(name, buffer, startPointer, -1);
+		this(name, startPointer, -1);
 	}
 	
-	public Match(String event, StringBuilder buffer, int startPointer, int endPointer) {
+	public Match(String event, int startPointer, int endPointer) {
 		this.event = event;
-		this.buffer = buffer;
 		this.startPointer = startPointer;
 		this.endPointer = endPointer;
 	}
@@ -34,7 +32,7 @@ public class Match {
 		return endPointer;
 	}
 	
-	public String getContent() {
+	public String getContent(StringBuilder buffer) {
 		return buffer.substring(startPointer, endPointer);
 	}
 	

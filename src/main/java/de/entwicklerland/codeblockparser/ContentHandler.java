@@ -6,6 +6,6 @@ import java.io.OutputStream;
 
 public abstract class ContentHandler {
 	
-	public abstract void process(Match match, OutputStream output) throws IOException;
+	public abstract void process(Match match, StringBuilder buffer, OutputStream output) throws IOException;
 	
 }
