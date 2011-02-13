@@ -20,6 +20,6 @@
   attr_value = (any - '"')+ >match_value %end_last_match;
   attr = attr_name '="' attr_value '"'; 
 
-  attrs = ( attr space+)**;
+  attrs = ( attr space+)** attr?;
 
 }%%

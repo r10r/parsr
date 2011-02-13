@@ -15,34 +15,42 @@ public void parse(char[] data) {
   %% write exec;
 
   %%{
-    	include attributes "AttributesParser.rl";
+    	include attributes "Attributes.rl";
   
-  	action namespace_open {
-  		mopen("namespace");
+  	action beginMatchNamespace {
+	  beginMatch("namespace");
   	}
 
-	action tag_open {
-  		mopen("tag");
+	action beginMatchTag {
+	  beginMatch("tag");
   	}
 
-	action tag_name_open {
-  		mopen("tagname");
+	action beginMatchTagname {
+	  beginMatch("tagname");
   	}
+
+	action endLastMatch {
+	  endLastMatch();
+	}
+
+	action writeBack {
+	  write();	
+	}
   	
-    tag_open = '<' >tag_open;
-    tagname = lower+ >tag_name_open %{ mclose();};
+    tag_open = '<' >beginMatchNamespace;
+    tagname = lower+ >beginMatchTag %endLastMatch;
 
-    tag_finish = '</' >{ mclose();};
-    tag_close = '>' >{ mclose();};
+    tag_finish = '</';
+    tag_close = '>';
 
-    namespace = lower+ >namespace_open %{ mclose();};
+    namespace = lower+ >beginMatchNamespace %endLastMatch;
     
     opening_tag = tag_open . namespace . ':' . tagname . space+ . attrs . tag_close;
     
     closing_tag = tag_finish . namespace . ':' . tagname . tag_close;
     
     tag = opening_tag . any*  . closing_tag;
-    main := (any - tag)* ${write();} . tag . (any - tag)* ${write();};
+    main := (any - tag)* $writeBack . tag . (any - tag)* $writeBack;
 
   }%%
 }

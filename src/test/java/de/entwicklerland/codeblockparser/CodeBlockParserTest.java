@@ -51,4 +51,24 @@ public class CodeBlockParserTest {
 		System.out.println(output.toString());
 	}
 	
+	@Test
+	public void testAttributesParser2() throws IOException {
+		String input = "class=\"lang:java\" another=\"class2value\" ";
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		
+		Parser parser = new AttributesParser();
+		ContentHandler handler = new ContentHandler() {
+			
+			@Override
+			public void process(Match match, StringBuilder buffer, OutputStream output)
+					throws IOException {
+				System.out.println(String.format("%s[%s]",match, match.getContent(buffer)));
+			}
+		};
+		parser.registerToAll(handler);
+		parser.parse(input, output);
+		
+		System.out.println(output.toString());
+	}
+	
 }
