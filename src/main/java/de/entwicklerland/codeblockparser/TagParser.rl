@@ -1,21 +1,5 @@
-  %% machine codeparser;
-package de.entwicklerland.codeblockparser;
-
-public class CodeBlockParser extends Parser {
-
-  %% write data;
-  
-  %% write init;
-  
-public void parse(char[] data) {
-  
-  // data stream end pointer
-  int pe = data.length;
-
-  %% write exec;
-
   %%{
-    	include attributes "Attributes.rl";
+    include attributes "Attributes.rl";
   
   	action beginMatchNamespace {
 	  beginMatch("namespace");
@@ -38,12 +22,12 @@ public void parse(char[] data) {
 	}
   	
     tag_open = '<';
-    tagname = lower+ >beginMatchTag %endLastMatch;
 
     tag_finish = '</';
     tag_close = '>';
 
     namespace = lower+ >beginMatchNamespace %endLastMatch;
+    tagname = lower+ >beginMatchTag %endLastMatch;
     
     opening_tag = tag_open . namespace . ':' . tagname . space+ . attrs . tag_close;
     
@@ -53,7 +37,3 @@ public void parse(char[] data) {
     main := (any - tag)* $writeBack . tag . (any - tag)* $writeBack;
 
   }%%
-}
-
-
-}

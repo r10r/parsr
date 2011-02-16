@@ -35,5 +35,13 @@ define 'codeblockparser', :layout=>layout do
     'Creation' => Time.now.strftime("%a, %d %b %Y %H:%M:%S %z")
   }
 
+  task('ragel') do
+	  file "CodeBlockParser.java" => ["CodeBlockParser.rl", "Attributes.rl"] do
+	    exec("ragel -J CodeBlockParser.java")
+	  end
+  end
+
+
+
 end
 
