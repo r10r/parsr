@@ -40,4 +40,5 @@ public class Match {
 	public String toString() {
 		return String.format("%s startPointer[%s], endPointer[%s]", event, startPointer, endPointer);
 	}
+	
 }

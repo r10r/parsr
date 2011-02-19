@@ -74,6 +74,7 @@ public abstract class Parser {
 		this.inputReader = new BufferedReader(new InputStreamReader(input));
 		processingPointer = buffer.length();
 		
+		// TODO include or exclude line terminators?
 		String line;
 		while ((line = inputReader.readLine()) != null) {
 			buffer.append(line);

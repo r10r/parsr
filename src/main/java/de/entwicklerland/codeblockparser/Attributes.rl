@@ -6,7 +6,7 @@
   }
 
   action match_value {
-    beginMatch("attr_value");
+    beginMatch("attribute_value");
   }
 
   action end_last_match {

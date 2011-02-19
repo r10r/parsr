@@ -50,7 +50,7 @@ public void parse(char[] data) {
     closing_tag = tag_finish . namespace . ':' . tagname . tag_close;
     
     tag = opening_tag . any*  . closing_tag;
-    main := (any - tag)* $writeBack . tag . (any - tag)* $writeBack;
+    main := (any - tag)* . tag . (any - tag)*;
 
   }%%
 }

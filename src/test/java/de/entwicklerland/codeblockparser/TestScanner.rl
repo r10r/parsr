@@ -4,10 +4,6 @@ public class TestScanner extends Parser {
 
   %% machine testscanner;
   
-public CodeBlockParser(InputStream input, OutputStream output) {
-		super(input, output);
-}
-
   %% write data;
   %% write init;
 
