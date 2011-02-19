@@ -49,6 +49,7 @@ public abstract class Parser {
 	 protected int te;
 	 protected int act;
 	 protected int p;
+	 protected int eof;
 	 
 	 public void setCs(int cs) {
 		this.cs = cs;
@@ -103,14 +104,30 @@ public abstract class Parser {
 		}
 	}
 	
+	private boolean writeBack = false;
+	
+	public void setWriteBack(boolean writeBack) {
+		this.writeBack = writeBack;
+	}
+	
+	public void enableWriteBack() {
+		this.writeBack = true;
+	}
+	
+	public void disableWriteBack() {
+		this.writeBack = false;
+	}
+	
 	/**
 	 * Write current character to output stream
 	 */
 	public void write() {
-		try {
-			this.output.write(buffer.charAt(processingPointer+p));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		if (writeBack) {
+			try {
+				this.output.write(buffer.charAt(processingPointer+p));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
@@ -120,6 +137,7 @@ public abstract class Parser {
 	
 	private void reset() {
 		buffer = new StringBuilder();
+		this.writeBack = false;
 	}
 
 	/**

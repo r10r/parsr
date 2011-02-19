@@ -1,9 +1,15 @@
 package de.entwicklerland.parsr.codeblock;
 
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.junit.Test;
 
+import de.entwicklerland.parsr.ContentHandler;
+import de.entwicklerland.parsr.Match;
 import de.entwicklerland.parsr.Parser;
 import de.entwicklerland.parsr.ParserValidator;
 import de.entwicklerland.parsr.codeblock.AttributesParser;
@@ -53,6 +59,25 @@ public class CodeBlockParserTest {
 		validator.addExpectedMatch("namespace", "blog");
 		validator.addExpectedMatch("tag", "pre");
 		validator.validate();
+	}
+	
+	@Test
+	public void testCodeBlockParser1() throws IOException {
+		Parser parser = new CodeBlockParser();
+		String input = "aaaaa<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>bbbbbb";
+		String expected = "aaaaabbbbbb";
+		
+		ContentHandler contentHandler = new ContentHandler() {
+			
+			public void process(Match match, StringBuilder buffer, OutputStream output)
+					throws IOException {
+			}
+		};
+		
+		parser.registerToAll(contentHandler);
+		ByteArrayOutputStream output =  new ByteArrayOutputStream();
+		parser.parse(input, output);
+		assertEquals(expected, output.toString());
 	}
 	
 }
