@@ -65,15 +65,15 @@ You may now modify the maschine definition.
 
 To process the input stream you may use the following methods of the parser:
 
-- *<Parser>.write()* to write the current processed character to the outputstream,
+- *Parser.write()* to write the current processed character to the outputstream,
   which is a sort of echo back the input stream to the output stream.
 
-- *<Parser>.beginMatch("eventname")*  to start matching a region
+- *Parser.beginMatch("eventname")*  to start matching a region
 
-- *<Parser>.endMatch("eventname")* to end matching a region, 
+- *Parser.endMatch("eventname")* to end matching a region, 
   calling *endMatch* generates an event for the content handler.
 
-- *<Parser>.shrink(int)* method to shrink the buffer of the buffered input stream 
+- *Parser.shrink(int)* method to shrink the buffer of the buffered input stream 
 
 ## how to use the parser
 
@@ -86,32 +86,32 @@ the data sink is filled by the content handler
 - call one of the *parse* methods on the parser to process the input
 
 <pre>
-  // create data sink
-	ByteArrayOutputStream output = new ByteArrayOutputStream();
+// create data sink
+ByteArrayOutputStream output = new ByteArrayOutputStream();
   
-  // instantiate parser 
-  Parser parser = new SomeParser();
+// instantiate parser 
+Parser parser = new SomeParser();
 
-  // create content handler implementation  
-	ContentHandler handler = new ContentHandler() {
-			@Override
-			public void process(Match match, StringBuilder buffer, OutputStream output) throws IOException {
-				String content = match.getContent(buffer);
-				String event = match.getEvent();
+// create content handler implementation  
+ContentHandler handler = new ContentHandler() {
+	@Override
+	public void process(Match match, StringBuilder buffer, OutputStream output) throws IOException {
+	  String content = match.getContent(buffer);
+		String event = match.getEvent();
 				
-				// write event and content to output, separated by a colon
-				output.write(content.getBytes());
-				output.write(':');
-				output.write(event.getBytes());
-				
-			}
-		};
+		// write event and content to output, separated by a colon
+		output.write(content.getBytes());
+		output.write(':');
+		output.write(event.getBytes());
+			
+	}
+};
 		
-		// register content handler to all parsing events
-		parser.registerToAll(handler);
+// register content handler to all parsing events
+parser.registerToAll(handler);
 		
-		// process input 
-		parser.parse(input, output);
+// process input 
+parser.parse(input, output);
 </pre>
 
 ## test the parser
