@@ -1,74 +1,53 @@
 package de.entwicklerland.codeblockparser;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.junit.Test;
 
 public class CodeBlockParserTest {
 	
 	@Test
-	public void testCodeBlockParser1() throws IOException {
-		String input = "<blog:pre class=\"lang:java\"></blog:pre>";
-//		String input = "AAAAaaa";
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		
-		Parser parser = new CodeBlockParser();
-		ContentHandler handler = new ContentHandler() {
-			
-			@Override
-			public void process(Match match, StringBuilder buffer, OutputStream output)
-					throws IOException {
-				System.out.println(String.format("%s[%s]",match, match.getContent(buffer)));
-			}
-		};
-		parser.registerToAll(handler);
-		parser.parse(input, output);
-		
-		System.out.println(output.toString());
-	}
-	
-	@Test
-	public void testAttributesParser() throws IOException {
+	public void testAttribute() throws IOException {
+		Parser parser = new AttributesParser();
 		String input = "class=\"lang:java\"";
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		
-		Parser parser = new AttributesParser();
-		ContentHandler handler = new ContentHandler() {
-			
-			@Override
-			public void process(Match match, StringBuilder buffer, OutputStream output)
-					throws IOException {
-				System.out.println(String.format("%s[%s]",match, match.getContent(buffer)));
-			}
-		};
-		parser.registerToAll(handler);
-		parser.parse(input, output);
-		
-		System.out.println(output.toString());
+		// compare event and content
+		ParserValidator validator = new ParserValidator(parser, input);
+		validator.addExpectedMatch("attribute_name", "class");
+		validator.addExpectedMatch("attribute_value", "lang:java");
+		validator.validate();
 	}
 	
 	@Test
-	public void testAttributesParser2() throws IOException {
-		String input = "class=\"lang:java\" another=\"class2value\" ";
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		
+	public void testMultipleAttributes() throws IOException {
 		Parser parser = new AttributesParser();
-		ContentHandler handler = new ContentHandler() {
-			
-			@Override
-			public void process(Match match, StringBuilder buffer, OutputStream output)
-					throws IOException {
-				System.out.println(String.format("%s[%s]",match, match.getContent(buffer)));
-			}
-		};
-		parser.registerToAll(handler);
-		parser.parse(input, output);
+		String input = "class=\"lang:java\" classx=\"othervalue\"";
 		
-		System.out.println(output.toString());
+		// compare event and content
+		ParserValidator validator = new ParserValidator(parser, input);
+		validator.addExpectedMatch("attribute_name", "class");
+		validator.addExpectedMatch("attribute_value", "lang:java");
+		validator.addExpectedMatch("attribute_name", "classx");
+		validator.addExpectedMatch("attribute_value", "othervalue");
+		validator.validate();
+	}
+	
+	@Test
+	public void testCodeBlockParser() throws IOException {
+		Parser parser = new CodeBlockParser();
+		String input = "<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>";
+
+		// compare event and content
+		ParserValidator validator = new ParserValidator(parser, input);
+		validator.addExpectedMatch("namespace", "blog");
+		validator.addExpectedMatch("tag", "pre");
+		validator.addExpectedMatch("attribute_name", "class");
+		validator.addExpectedMatch("attribute_value", "lang:java");
+		validator.addExpectedMatch("attribute_name", "classx");
+		validator.addExpectedMatch("attribute_value", "blabla");
+		validator.addExpectedMatch("namespace", "blog");
+		validator.addExpectedMatch("tag", "pre");
+		validator.validate();
 	}
 	
 }
