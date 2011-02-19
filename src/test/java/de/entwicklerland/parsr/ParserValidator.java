@@ -60,7 +60,7 @@ public class ParserValidator {
 			throws IOException {
 				String content = match.getContent(buffer);
 				String event = match.getEvent();
-				
+
 				// log match and content
 				System.out.println(String.format("%s: %s", match, content));
 				
