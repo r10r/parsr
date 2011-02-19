@@ -1,8 +1,13 @@
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr.codeblock;
 
 import java.io.IOException;
 
 import org.junit.Test;
+
+import de.entwicklerland.parsr.Parser;
+import de.entwicklerland.parsr.ParserValidator;
+import de.entwicklerland.parsr.codeblock.AttributesParser;
+import de.entwicklerland.parsr.codeblock.CodeBlockParser;
 
 public class CodeBlockParserTest {
 	

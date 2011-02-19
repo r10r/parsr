@@ -1,4 +1,4 @@
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,6 +8,10 @@ import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.entwicklerland.parsr.ContentHandler;
+import de.entwicklerland.parsr.Match;
+import de.entwicklerland.parsr.Parser;
+
 /**
  * Simple validator for a parser that checks if parsing works
  * correctly.
@@ -15,7 +19,7 @@ import java.util.List;
  * @author ruben
  *
  */
-class ParserValidator {
+public class ParserValidator {
 
 	private Parser parser;
 	private String input;

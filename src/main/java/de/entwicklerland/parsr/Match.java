@@ -1,4 +1,4 @@
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr;
 
 public class Match {
 	private final String event;

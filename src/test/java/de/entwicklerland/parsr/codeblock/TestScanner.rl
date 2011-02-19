@@ -1,4 +1,6 @@
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr.codeblock;
+
+import de.entwicklerland.parsr.Parser;
 
 public class TestScanner extends Parser {
 

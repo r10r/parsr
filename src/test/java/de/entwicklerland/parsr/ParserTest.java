@@ -1,4 +1,4 @@
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -6,6 +6,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 import org.junit.Test;
+
+import de.entwicklerland.parsr.ContentHandler;
+import de.entwicklerland.parsr.Match;
+import de.entwicklerland.parsr.Parser;
 
 import static org.junit.Assert.*;
 
@@ -34,7 +38,7 @@ public class ParserTest {
 		
 		Parser parser = new Parser() {
 			@Override
-			void parse(char[] text) throws IOException {
+			protected void parse(char[] text) throws IOException {
 				Match match = new Match(event, 0, text.length);
 				notifyHandlers(match);
 			}

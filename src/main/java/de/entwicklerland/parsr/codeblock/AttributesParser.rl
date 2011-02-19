@@ -1,6 +1,8 @@
 %% machine attributesParser;
 %% include attributes "Attributes.rl";
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr.codeblock;
+
+import de.entwicklerland.parsr.Parser;
 
 public class AttributesParser extends Parser {
 

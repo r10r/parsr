@@ -1,7 +1,10 @@
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr.codeblock;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import de.entwicklerland.parsr.ContentHandler;
+import de.entwicklerland.parsr.Match;
 
 public class CodeBlockContentHandler extends ContentHandler {
 

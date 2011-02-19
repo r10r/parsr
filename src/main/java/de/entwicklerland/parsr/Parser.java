@@ -1,4 +1,4 @@
-package de.entwicklerland.codeblockparser;
+package de.entwicklerland.parsr;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * TODO 
@@ -43,11 +44,11 @@ public abstract class Parser {
 	  /* Current state. This must be an integer and it should persist across invocations of the
 	  machine when the data is broken into blocks that are processed independently. This variable
 	  may be modified from outside the execution loop, but not from within. */
-	 int cs;
-	 int ts;
-	 int te;
-	 int act;
-	 int p;
+	 protected int cs;
+	 protected int ts;
+	 protected int te;
+	 protected int act;
+	 protected int p;
 	 
 	 public void setCs(int cs) {
 		this.cs = cs;
@@ -83,7 +84,7 @@ public abstract class Parser {
 		reset();
 	}
 
-	abstract void parse(char[] text) throws IOException;
+	protected abstract void parse(char[] text) throws IOException;
 	
 	public void beginMatch(String event) {
 		LOG.debug("begin match: label[{}], position[{}], state[{}]", new Object[]{event, p, cs});
