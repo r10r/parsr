@@ -104,18 +104,24 @@ public abstract class Parser {
 		}
 	}
 	
-	private boolean writeBack = false;
+	private volatile boolean writeBack = false;
 	
 	public void setWriteBack(boolean writeBack) {
 		this.writeBack = writeBack;
 	}
 	
 	public void enableWriteBack() {
+		LOG.trace("enable writeBack: position[{}]", processingPointer+p);
 		this.writeBack = true;
 	}
 	
 	public void disableWriteBack() {
+		LOG.trace("disable writeBack: position[{}]", processingPointer+p);
 		this.writeBack = false;
+	}
+	
+	public boolean isWriteBack() {
+		return writeBack;
 	}
 	
 	/**
@@ -124,20 +130,69 @@ public abstract class Parser {
 	public void write() {
 		if (writeBack) {
 			try {
-				this.output.write(buffer.charAt(processingPointer+p));
+				char c = buffer.charAt(processingPointer+p);
+				LOG.trace("write back character[{}] position[{}]", c, p);
+				this.output.write(c);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
 	}
 	
+	private boolean shrink = false;
+	
+	public void enableShrink() {
+		LOG.trace("enable shrink: position[{}]", processingPointer+p);
+		this.shrink = true;
+	}
+	
+	public void disableShrink() {
+		LOG.trace("disable shrink: position[{}]", processingPointer+p);
+		this.shrink = false;
+	}
+	
 	protected void shrink(int end) {
-		buffer.delete(0, end);
+		if (shrink) {
+			LOG.trace("Shrinking internal buffer up to position[{}]", end);
+			buffer.delete(0, end);
+		} else {
+			LOG.trace("Shrinking is disabled!", end);
+		}
 	}
 	
 	private void reset() {
-		buffer = new StringBuilder();
+		LOG.trace("resetting buffer: position[{}]", processingPointer+p);
+		synchronized(buffer) {
+			buffer = new StringBuilder();
+		}
 		this.writeBack = false;
+	}
+	
+	private int mark = 0;
+	
+	public void logMark() {
+		LOG.debug("mark[{}] position[{}]", mark++, p);
+	}
+	
+	
+	private boolean notifyOnEmptyContent = false;
+	
+	/**
+	 * enable notification for events with empty content
+	 */
+	public void enableNotifyOnEmptyContent() {
+		this.notifyOnEmptyContent = true;
+	}
+	
+	/**
+	 * disable notification for events with empty content
+	 */
+	public void disableNotifyOnEmptyContent() {
+		this.notifyOnEmptyContent = false;
+	}
+	
+	public boolean isNotifyOnEmptyContent() {
+		return notifyOnEmptyContent;
 	}
 
 	/**
@@ -147,16 +202,21 @@ public abstract class Parser {
 	 * @param match
 	 * @throws IOException
 	 */
-	public void notifyHandlers(Match match) throws IOException {
+	void notifyHandlers(Match match) throws IOException {
 
-		for (ContentHandler handler : wildcardContentHandlers) {
-			handler.process(match, buffer, output);
-		}
-		
-		Set<ContentHandler> specificListerns = contentHandlers.get(match.getEvent());
-		if (specificListerns != null) {
-			for(ContentHandler handler: specificListerns) {
+		if (!notifyOnEmptyContent && match.isContentEmpty()) {
+			LOG.trace("Empty content notification disabled");
+		} else {
+			LOG.trace("Incoming match. Notifying content handlers.");
+			for (ContentHandler handler : wildcardContentHandlers) {
 				handler.process(match, buffer, output);
+			}
+			
+			Set<ContentHandler> specificListerns = contentHandlers.get(match.getEvent());
+			if (specificListerns != null) {
+				for(ContentHandler handler: specificListerns) {
+					handler.process(match, buffer, output);
+				}
 			}
 		}
 		

@@ -41,4 +41,11 @@ public class Match {
 		return String.format("%s startPointer[%s], endPointer[%s]", event, startPointer, endPointer);
 	}
 	
+	public boolean isContentEmpty() {
+		if (startPointer == endPointer) {
+			return true;
+		}
+		return false;
+	}
+	
 }
