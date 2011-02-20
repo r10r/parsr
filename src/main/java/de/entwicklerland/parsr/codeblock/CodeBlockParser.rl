@@ -16,7 +16,7 @@ public void parse(char[] data) {
   %% write exec;
 
   %%{
-    	include attributes "Attributes.rl";
+    include attributes "Attributes.rl";
   
 	action endLastMatch {
 	  endLastMatch();
@@ -41,14 +41,15 @@ public void parse(char[] data) {
     action logMark {
     	logMark();
     }
+
+    attributes = (space+ . attrs)*;
+    opening_tag = '<blog:pre' . attributes . '>';
+    closing_tag = '</blog:pre>';
     	
     other = any* >enableWriteBack $writeBack %disableWriteBack >2 $0 %1;
-    code = any* >beginMatchCode %logMark %endLastMatch;
-    attributes = (space+ . attrs)*; 
-    opening_tag = '<blog:pre' . attributes . '>' %logMark;
-    closing_tag = '</blog:pre>' %logMark;
-    main := (other . opening_tag . code . closing_tag)*;
-
+    code = any* >beginMatchCode %endLastMatch;
+    main := (other :> opening_tag . code :> closing_tag)*;
+	
   }%%
 }
 

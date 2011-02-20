@@ -4,12 +4,10 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.junit.Test;
 
 import de.entwicklerland.parsr.ContentHandler;
-import de.entwicklerland.parsr.Match;
 import de.entwicklerland.parsr.Parser;
 import de.entwicklerland.parsr.ParserValidator;
 import de.entwicklerland.parsr.codeblock.AttributesParser;
@@ -90,16 +88,16 @@ public class CodeBlockParserTest {
 	@Test
 	public void testCodeBlockParser3() throws IOException {
 		Parser parser = new CodeBlockParser();
-		String input = "aaaaa<blog:pre class=\"lang:java\" classx=\"blabla\">some</blog:pre>bbbbbb";
-		input += "ccccc<blog:pre class=\"lang:java\" classx=\"blabla\">some code</blog:pre>ddddd";
-//		String expected = "aaaaabbbbbb";
+		String input = "aa<blog:pre class=\"lang:java\" classx=\"blabla\">some</blog:pre>bb";
+		input += "cc<blog:pre class=\"lang:java\" classx=\"blabla\">some code</blog:pre>dd";
+		String expected = "aabbccdd";
 		
 		ContentHandler contentHandler = new NOPContentHandler();
 		
 		parser.registerToAll(contentHandler);
 		ByteArrayOutputStream output =  new ByteArrayOutputStream();
-		parser.parse(input, output);
+		parser.parse(input, output); 
 		System.out.println(output.toString());
-//		assertEquals(expected, output.toString());
+		assertEquals(expected, output.toString());
 	}
 }
