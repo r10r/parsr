@@ -1,6 +1,6 @@
 package de.entwicklerland.parsr;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,10 +45,16 @@ public class ParserValidator {
 		this.expectedMatches.add(new ExpectedMatch(event, content));
 	}
 	
+	int matchCount = 0;
+	
 	public void assertNextMatch(String event, String content) {
+		int count = matchCount++;
+		if (expectedMatches.isEmpty()) {
+			throw new IllegalStateException(String.format("Missing expectation for expected match[%s]", count));
+		}
 		ExpectedMatch expectedMatch = expectedMatches.remove(0);
-		assertEquals("event name should equal", expectedMatch.event, event);
-		assertEquals("content of match should equal", expectedMatch.content, content);
+		assertEquals(String.format("event[%d] name should equal", count), expectedMatch.event, event);
+		assertEquals(String.format("content[%d] of match should equal", count), expectedMatch.content, content);
 	}
 	
 	public void validate() throws IOException {
@@ -69,6 +75,8 @@ public class ParserValidator {
 		};
 		parser.registerToAll(handler);
 		parser.parse(input, output);
+		
+		assertTrue(String.format("Missing match for [%d]expectations", expectedMatches.size()),expectedMatches.isEmpty());
 		
 	}
 }
