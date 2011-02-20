@@ -7,9 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public abstract class Parser {
 	private final Set<ContentHandler> wildcardContentHandlers = new HashSet<ContentHandler>();
 	
 	protected StringBuilder buffer = new StringBuilder();
-	private final Stack<Match> markerStack = new Stack<Match>();
+	private final List<Match> markerStack = new LinkedList<Match>();
 	
 	private static final String ALL = "*";
 	
@@ -89,7 +90,18 @@ public abstract class Parser {
 	
 	public void beginMatch(String event) {
 		LOG.debug("begin match: label[{}], state[{}], position[{}]", new Object[]{event, cs, p});
-		this.markerStack.push(new Match(event, buffer, p));
+		this.markerStack.add(new Match(event, buffer, p));
+	}
+	
+	public void endLastMatch(String event) {
+		for (int i = markerStack.size()-1; i>=0; i--) {
+			Match match = markerStack.get(i);
+			if (match.getEvent().equals(event)) {
+				endMatch(i);
+				return;
+			}
+		}
+		throw new IllegalStateException(String.format("no open marker found for event[%s]", event));
 	}
 	
 	/**
@@ -101,7 +113,12 @@ public abstract class Parser {
 					String.format("empty marker stack: trying to close marker at position [%d]" +
 							"\n   input consumed[%s]", p, buffer.subSequence(0, p)));
 		}
-		Match match = this.markerStack.pop();
+		// get last match
+		endMatch(markerStack.size()-1);
+	}
+	
+	private void endMatch(int index) {
+		Match match = this.markerStack.remove(index);
 		match.setEndPointer(p);
 		LOG.debug("end match: label[{}], state[{}], position[{}], content[{}]", 
 				new Object[]{match.getEvent(), cs, p, match.getContent(buffer)});
