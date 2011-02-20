@@ -18,18 +18,6 @@ public void parse(char[] data) {
   %%{
     	include attributes "Attributes.rl";
   
-  	action beginMatchNamespace {
-	  beginMatch("namespace");
-  	}
-
-	action beginMatchTag {
-	  beginMatch("tag");
-  	}
-
-	action beginMatchTagname {
-	  beginMatch("tagname");
-  	}
-
 	action endLastMatch {
 	  endLastMatch();
 	}
@@ -45,22 +33,21 @@ public void parse(char[] data) {
 	action disableWriteBack {
 	  disableWriteBack();
 	}
-  	
-    tag_open = '<';
-    tagname = lower+ >beginMatchTag %endLastMatch;
-
-    tag_finish = '</';
-    tag_close = '>';
-
-    namespace = lower+ >beginMatchNamespace %endLastMatch;
     
-    opening_tag = tag_open . namespace . ':' . tagname . space+ . attrs . tag_close;
+    action beginMatchCode {
+    	beginMatch("code");
+    }
     
-    closing_tag = tag_finish . namespace . ':' . tagname . tag_close;
-    
-    tag = opening_tag . any*  . closing_tag;
+    action logMark {
+    	logMark();
+    }
+    	
     other = any* >enableWriteBack $writeBack %disableWriteBack >2 $0 %1;
-    main :=  other . tag . other;
+    code = any* >beginMatchCode %logMark %endLastMatch;
+    attributes = (space+ . attrs)*; 
+    opening_tag = '<blog:pre' . attributes . '>' %logMark;
+    closing_tag = '</blog:pre>' %logMark;
+    main := (other . opening_tag . code . closing_tag)*;
 
   }%%
 }

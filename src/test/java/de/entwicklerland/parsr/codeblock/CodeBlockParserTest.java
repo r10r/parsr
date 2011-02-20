@@ -46,33 +46,10 @@ public class CodeBlockParserTest {
 	@Test
 	public void testCodeBlockParser() throws IOException {
 		Parser parser = new CodeBlockParser();
-		String input = "<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>";
-
-		// compare event and content
-		ParserValidator validator = new ParserValidator(parser, input);
-		validator.addExpectedMatch("namespace", "blog");
-		validator.addExpectedMatch("tag", "pre");
-		validator.addExpectedMatch("attribute_name", "class");
-		validator.addExpectedMatch("attribute_value", "lang:java");
-		validator.addExpectedMatch("attribute_name", "classx");
-		validator.addExpectedMatch("attribute_value", "blabla");
-		validator.addExpectedMatch("namespace", "blog");
-		validator.addExpectedMatch("tag", "pre");
-		validator.validate();
-	}
-	
-	@Test
-	public void testCodeBlockParser1() throws IOException {
-		Parser parser = new CodeBlockParser();
 		String input = "aaaaa<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>bbbbbb";
 		String expected = "aaaaabbbbbb";
 		
-		ContentHandler contentHandler = new ContentHandler() {
-			
-			public void process(Match match, StringBuilder buffer, OutputStream output)
-					throws IOException {
-			}
-		};
+		ContentHandler contentHandler = new NOPContentHandler();
 		
 		parser.registerToAll(contentHandler);
 		ByteArrayOutputStream output =  new ByteArrayOutputStream();
@@ -80,4 +57,49 @@ public class CodeBlockParserTest {
 		assertEquals(expected, output.toString());
 	}
 	
+	@Test
+	public void testCodeBlockParser1() throws IOException {
+		Parser parser = new CodeBlockParser();
+		String input = "<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>";
+
+		// compare event and content
+		ParserValidator validator = new ParserValidator(parser, input);
+		validator.addExpectedMatch("attribute_name", "class");
+		validator.addExpectedMatch("attribute_value", "lang:java");
+		validator.addExpectedMatch("attribute_name", "classx");
+		validator.addExpectedMatch("attribute_value", "blabla");
+		validator.validate();
+	}
+	
+	@Test
+	public void testCodeBlockParser2() throws IOException {
+		Parser parser = new CodeBlockParser();
+		parser.enableNotifyOnEmptyContent();
+		String input = "<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>";
+
+		// compare event and content
+		ParserValidator validator = new ParserValidator(parser, input);
+		validator.addExpectedMatch("attribute_name", "class");
+		validator.addExpectedMatch("attribute_value", "lang:java");
+		validator.addExpectedMatch("attribute_name", "classx");
+		validator.addExpectedMatch("attribute_value", "blabla");
+		validator.addExpectedMatch("code", "");
+		validator.validate();
+	}
+	
+	@Test
+	public void testCodeBlockParser3() throws IOException {
+		Parser parser = new CodeBlockParser();
+		String input = "aaaaa<blog:pre class=\"lang:java\" classx=\"blabla\">some</blog:pre>bbbbbb";
+		input += "ccccc<blog:pre class=\"lang:java\" classx=\"blabla\">some code</blog:pre>ddddd";
+//		String expected = "aaaaabbbbbb";
+		
+		ContentHandler contentHandler = new NOPContentHandler();
+		
+		parser.registerToAll(contentHandler);
+		ByteArrayOutputStream output =  new ByteArrayOutputStream();
+		parser.parse(input, output);
+		System.out.println(output.toString());
+//		assertEquals(expected, output.toString());
+	}
 }
