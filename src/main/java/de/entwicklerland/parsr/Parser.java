@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Parser {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(Parser.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(Parser.class);
 
 	private BufferedReader inputReader;
 	private OutputStream output;
@@ -88,15 +88,23 @@ public abstract class Parser {
 	protected abstract void parse(char[] text) throws IOException;
 	
 	public void beginMatch(String event) {
-		LOG.debug("begin match: label[{}], position[{}], state[{}]", new Object[]{event, p, cs});
+		LOG.debug("begin match: label[{}], state[{}], position[{}]", new Object[]{event, cs, p});
 		this.markerStack.push(new Match(event, buffer, p));
 	}
 	
+	/**
+	 * @throws IllegalStateException if stack is empty
+	 */
 	public void endLastMatch() {
+		if (this.markerStack.isEmpty()) {
+			throw new IllegalStateException(
+					String.format("empty marker stack: trying to close marker at position [%d]" +
+							"\n   input consumed[%s]", p, buffer.subSequence(0, p)));
+		}
 		Match match = this.markerStack.pop();
 		match.setEndPointer(p);
-		LOG.debug("end match: label[{}], position[{}], state[{}], content[{}]", 
-				new Object[]{match.getEvent(), p, cs, match.getContent(buffer)});
+		LOG.debug("end match: label[{}], state[{}], position[{}], content[{}]", 
+				new Object[]{match.getEvent(), cs, p, match.getContent(buffer)});
 		try {
 			notifyHandlers(match);
 		} catch (IOException e) {
