@@ -46,9 +46,9 @@ public void parse(char[] data) {
     opening_tag = '<blog:pre' . attributes . '>';
     closing_tag = '</blog:pre>';
     	
-    other = any* >enableWriteBack $writeBack %disableWriteBack >2 $0 %1;
-    code = any* >beginMatchCode %endLastMatch;
-    main := (other :> opening_tag . code :> closing_tag)*;
+    other = any+ >enableWriteBack $writeBack %disableWriteBack >2 $0 %1;
+    code = any+ >beginMatchCode %logMark %endLastMatch;
+    main := (other? :>> opening_tag . code? :>> closing_tag >logMark)*;
 	
   }%%
 }

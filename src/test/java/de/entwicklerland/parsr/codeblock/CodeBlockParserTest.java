@@ -86,6 +86,16 @@ public class CodeBlockParserTest {
 	}
 	
 	@Test
+	public void testCodeBlockWithoutAttributes() throws IOException {
+		Parser parser = new CodeBlockParser();
+		String input = "<blog:pre></blog:pre>";
+		
+		// expect no events to be thrown since empty content notification is disabled by default
+		ParserValidator validator = new ParserValidator(parser, input);
+		validator.validate();
+	}
+	
+	@Test
 	public void testCodeBlockParser3() throws IOException {
 		Parser parser = new CodeBlockParser();
 		String input = "aa<blog:pre class=\"lang:java\" classx=\"blabla\">some</blog:pre>bb";
@@ -99,5 +109,27 @@ public class CodeBlockParserTest {
 		parser.parse(input, output); 
 		System.out.println(output.toString());
 		assertEquals(expected, output.toString());
+	}
+	
+	@Test
+	public void testCodeBlockParser4() throws IOException {
+		Parser parser = new CodeBlockParser();
+		String input = "<blog:pre><hello></hello></blog:pre>";
+		
+//		// compare event and content
+//		ParserValidator validator = new ParserValidator(parser, input);
+//		validator.addExpectedMatch("attribute_name", "class");
+//		validator.addExpectedMatch("attribute_value", "lang:java");
+//		validator.addExpectedMatch("attribute_name", "classx");
+//		validator.addExpectedMatch("attribute_value", "blabla");
+//		validator.validate();
+//		
+//		String expected = "aabbccdd";
+		
+		ContentHandler contentHandler = new NOPContentHandler();
+		
+		parser.registerToAll(contentHandler);
+		ByteArrayOutputStream output =  new ByteArrayOutputStream();
+		parser.parse(input, output); 
 	}
 }
