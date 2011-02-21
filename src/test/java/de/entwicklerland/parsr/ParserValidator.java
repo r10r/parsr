@@ -57,6 +57,14 @@ public class ParserValidator {
 		assertEquals(String.format("content[%d] of match should equal", count), expectedMatch.content, content);
 	}
 	
+	private String expectedOutput = null;
+	private boolean checkOutput = false;
+	
+	public void expectOutput(String expectedOutput) {
+		this.expectedOutput = expectedOutput;
+		this.checkOutput = true;
+	}
+	
 	public void validate() throws IOException {
 		
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -77,6 +85,10 @@ public class ParserValidator {
 		parser.parse(input, output);
 		
 		assertTrue(String.format("Missing match for [%d]expectations", expectedMatches.size()),expectedMatches.isEmpty());
+		
+		if (checkOutput) {
+			assertEquals("parser output should match", expectedOutput, output.toString());
+		}
 		
 	}
 }
