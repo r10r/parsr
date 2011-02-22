@@ -96,14 +96,25 @@ public abstract class Parser {
 	}
 	
 	public void beginScan() {
-		LOG.debug("begin scan match: position[{}]", te);
+		LOG.debug("begin scan: position[{}]", te);
 		this.markerStack.add(new Match("code", buffer, te));
 	}
 	
+	public void beginScan(boolean writeBack) {
+		setWriteBack(writeBack);
+		beginScan();
+	}
+
+	public void endScan(boolean writeBack) {
+		setWriteBack(writeBack);
+		endScan();
+	}
+
 	public void endScan() {
 		Match match = this.markerStack.get(this.markerStack.size()-1);
-		LOG.debug("end scan: position[{}]", ts);
 		match.setEndPointer(ts);
+		LOG.debug("end scan: label[{}], state[{}], position[{}], content[{}]",
+				new Object[] { match.getEvent(), cs, p, match.getContent(buffer) });
 		try {
 			notifyHandlers(match);
 		} catch (IOException e) {
@@ -150,7 +161,11 @@ public abstract class Parser {
 	private volatile boolean writeBack = true;
 	
 	public void setWriteBack(boolean writeBack) {
-		this.writeBack = writeBack;
+		if (writeBack) {
+			enableWriteBack();
+		} else {
+			disableWriteBack();
+		}
 	}
 	
 	public void enableWriteBack() {

@@ -1,16 +1,13 @@
 package de.entwicklerland.parsr;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
-
-import de.entwicklerland.parsr.ContentHandler;
-import de.entwicklerland.parsr.Match;
-import de.entwicklerland.parsr.Parser;
 
 /**
  * Simple validator for a parser that checks if parsing works
@@ -75,9 +72,6 @@ public class ParserValidator {
 				String content = match.getContent(buffer);
 				String event = match.getEvent();
 
-				// log match and content
-				System.out.println(String.format("%s: %s", match, content));
-				
 				assertNextMatch(event, content);
 			}
 		};

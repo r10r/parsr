@@ -31,11 +31,11 @@ public void parse(char[] data) {
 	}
     
     action beginMatchCode {
-    	beginScan();
+    	beginScan(false);
     }
       
 	action endMatchCode {
-	  endScan();
+	  endScan(true);
 	}
     
     tag_name = 'blog:pre';
