@@ -39,10 +39,10 @@ public void parse(char[] data) {
 	}
     
     tag_name = 'blog:pre';
-    opening_tag = '<' tag_name . space+ . attrs . '>';
+    attributes = space+ . attrs;
+    opening_tag = '<' tag_name . attributes? . '>';
     closing_tag = '</' tag_name '>';
     other = any;
-    #main := (opening_tag | closing_tag | other)*;
     main := |*
     	opening_tag => beginMatchCode;
     	closing_tag => endMatchCode;

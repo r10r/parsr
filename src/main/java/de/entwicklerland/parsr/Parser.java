@@ -111,46 +111,39 @@ public abstract class Parser {
 	}
 
 	public void endScan() {
-		Match match = this.markerStack.get(this.markerStack.size()-1);
-		match.setEndPointer(ts);
-		LOG.debug("end scan: label[{}], state[{}], position[{}], content[{}]",
-				new Object[] { match.getEvent(), cs, p, match.getContent(buffer) });
-		try {
-			notifyHandlers(match);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		endLastMatch(this.markerStack.size()-1, ts);
 	}
 	
 	public void endLastMatch(String event) {
 		for (int i = markerStack.size()-1; i>=0; i--) {
 			Match match = markerStack.get(i);
 			if (match.getEvent().equals(event)) {
-				endMatch(i);
+				endLastMatch(i, p);
 				return;
 			}
 		}
 		throw new IllegalStateException(String.format("no open marker found for event[%s]", event));
 	}
 	
+	
+	public void endLastMatch() {
+		endLastMatch(markerStack.size()-1, p);
+	}
+	
 	/**
 	 * @throws IllegalStateException if stack is empty
 	 */
-	public void endLastMatch() {
+	public void endLastMatch(int matchIndex, int endPointer) {
 		if (this.markerStack.isEmpty()) {
 			throw new IllegalStateException(
 					String.format("empty marker stack: trying to close marker at position [%d]" +
-							"\n   input consumed[%s]", p, buffer.subSequence(0, p)));
+							"\n   input consumed[%s]", endPointer, buffer.subSequence(0, endPointer)));
 		}
 		// get last match
-		endMatch(markerStack.size()-1);
-	}
-	
-	private void endMatch(int index) {
-		Match match = this.markerStack.remove(index);
-		match.setEndPointer(p);
-		LOG.debug("end match: label[{}], state[{}], position[{}], content[{}]", 
-				new Object[]{match.getEvent(), cs, p, match.getContent(buffer)});
+		Match match = this.markerStack.remove(matchIndex);
+		match.setEndPointer(endPointer);
+		LOG.debug("end match: label[{}], state[{}], end-pointer[{}], content[{}]", 
+				new Object[]{match.getEvent(), cs, endPointer, match.getContent(buffer)});
 		try {
 			notifyHandlers(match);
 		} catch (IOException e) {

@@ -57,6 +57,10 @@ public class ParserValidator {
 	private String expectedOutput = null;
 	private boolean checkOutput = false;
 	
+	public void expectEmptyOutput() {
+		expectOutput("");
+	}
+	
 	public void expectOutput(String expectedOutput) {
 		this.expectedOutput = expectedOutput;
 		this.checkOutput = true;
