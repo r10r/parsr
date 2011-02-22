@@ -147,5 +147,13 @@ au BufNewFile,BufRead *.rl setf ragel
 augroup END
 </pre>
 
+# ragel specifics
+
+## priorites 
+
+- unnamed priorities are valid for the whole instantiation of a maschine !
 
 
+## guarded concatenation
+
+- to escape from an *any* matching sequence one can use (entry-)guarded concatenation of maschines

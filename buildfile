@@ -39,50 +39,44 @@ define 'codeblockparser', :layout=>layout do
     'Creation' => Time.now.strftime("%a, %d %b %Y %H:%M:%S %z")
   }
   
-   def filetask(args = {})
-    if (args[:file_names].empty?)
-      puts "\n#{args[:message_not_found]}\n"
+  def filetask(options = {})
+    files = Dir.glob(options[:files])
+    if (files.empty?)
+      puts "\n#{options[:message_not_found]}\n"
     else
-      puts "\n#{args[:message_found]}"
-      args[:file_names].each do |name|
-        puts("  file: #{name}")
-        yield name
+      puts "\n#{options[:message_found]}"
+      files.each do |path|
+        if yield(path)
+          puts("  processed file: #{path}")
+        end
 	    end
-	  end
       puts "\n"
+	  end
   end
 
   # generate all java classes for the ragel files in the /src directory recursively
   # which have a machine definition and a machine instantiation
   task :ragel do
-  file_names = Dir.glob('src/**/*.rl').select do |name|
-    File.new(name).grep(/(^|[\s]+)machine[\s]+/).length > 0 && 
-    File.new(name).grep(/.*:=.*/).length > 0
-  end
     # check that the ragel file contains a machine instantiation
-  filetask({
-    :file_names => file_names,
-    :message_not_found => "No machine definitions found!",
-    :message_found => "Generating ragel parsers for machine definitions:" }) do |name|
-      system("ragel -J #{name}")
+    filetask(:files => 'src/**/*.rl',
+             :message_not_found => "No machine definitions found!",
+             :message_found => "Generating ragel parsers for machine definitions:") do |path|
+      if File.new(path).grep(/(^|[\s]+)machine[\s]+/).length > 0 && 
+         File.new(path).grep(/.*:=.*/).length > 0
+        system("ragel -J #{path}")
+      end
     end
-
   end
 
   # remove all generated ragel parsers from the /src directory recursively
   task :ragel_clean do
-    file_names = Dir.glob("src/**/*.rl").collect {|name| name.gsub('.rl','.java')}
-    file_names = file_names.select {|name| File.exists? name }
-    
-    filetask({
-      :file_names => file_names,
-      :message_not_found => "No generated ragel parsers found to delete!",
-      :message_found => "Removing generated ragel parsers:"}) do |name|
-        File.delete(name)
-      end
+    filetask(:files => "src/**/*.rl",
+             :message_not_found => "No generated ragel parsers found to delete!",
+             :message_found => "Removing generated ragel parsers:") do |path|
+      path = path.gsub(/\.rl$/,'.java')
+      File.delete(path) if File.exists?(path)
+    end
   end
-
-
 
 end
 

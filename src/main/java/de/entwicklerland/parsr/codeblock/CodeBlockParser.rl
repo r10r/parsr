@@ -42,13 +42,16 @@ public void parse(char[] data) {
     	logMark();
     }
 
-    attributes = (space+ . attrs)*;
-    opening_tag = '<blog:pre' . attributes . '>';
-    closing_tag = '</blog:pre>';
-    	
-    other = any+ >enableWriteBack $writeBack %disableWriteBack >2 $0 %1;
-    code = any+ >beginMatchCode %logMark %endLastMatch;
-    main := (other? :>> opening_tag . code? :>> closing_tag >logMark)*;
+    tag_name = 'blog:pre';
+    opening_tag = '<' tag_name . space+ . attrs . '>' %beginMatchCode;
+    closing_tag = '</' tag_name '>' >endLastMatch;
+    other = any;
+    #main := (opening_tag | closing_tag | other)*;
+    main := |*
+    	opening_tag => logMark;
+    	closing_tag => logMark;
+    	other => logMark;
+    *|;
 	
   }%%
 }

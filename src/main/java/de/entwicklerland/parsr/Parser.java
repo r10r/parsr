@@ -46,12 +46,14 @@ public abstract class Parser {
 	  machine when the data is broken into blocks that are processed independently. This variable
 	  may be modified from outside the execution loop, but not from within. */
 	 protected int cs;
-	 protected int ts;
-	 protected int te;
-	 protected int act;
 	 protected int p;
 	 protected int eof;
 	 
+	 // scanner variables
+	 protected int ts;
+	 protected int te;
+	 protected int act;
+
 	 public void setCs(int cs) {
 		this.cs = cs;
 	}
@@ -129,7 +131,7 @@ public abstract class Parser {
 		}
 	}
 	
-	private volatile boolean writeBack = false;
+	private volatile boolean writeBack = true;
 	
 	public void setWriteBack(boolean writeBack) {
 		this.writeBack = writeBack;
@@ -196,7 +198,7 @@ public abstract class Parser {
 	private int mark = 0;
 	
 	public void logMark() {
-		LOG.debug("mark[{}] position[{}]", mark++, p);
+		LOG.debug("mark[{}] position[{}], token[{}]", new Object[]{mark++, p, buffer.subSequence(p, p+1)});
 	}
 	
 	

@@ -44,8 +44,8 @@ public class CodeBlockParserTest {
 	@Test
 	public void testCodeBlockParser() throws IOException {
 		Parser parser = new CodeBlockParser();
-		String input = "aaaaa<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>bbbbbb";
-		String expected = "aaaaabbbbbb";
+		String input = "aa<blog:pre class=\"lang:java\" classx=\"blabla\"></blog:pre>bb";
+		String expected = "aabb";
 		
 		ContentHandler contentHandler = new NOPContentHandler();
 		
