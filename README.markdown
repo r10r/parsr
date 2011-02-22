@@ -127,7 +127,7 @@ a case.
 
 <pre>
 java.lang.IllegalStateException: empty marker stack: trying to close marker at position [75]
-   input consumed[aaaaa<blog:pre class="lang:java" classx="blabla">some</blog:pre>bbbbbbccccc]
+   input consumed[aaaaa<blog:pre class="lang:java" classx="blabla"\>some\</blog:pre>bbbbbbccccc]
 	at de.entwicklerland.parsr.Parser.endLastMatch(Parser.java:100)
 	at de.entwicklerland.parsr.codeblock.CodeBlockParser.parse(CodeBlockParser.java:327)
 	at de.entwicklerland.parsr.Parser.parse(Parser.java:70)
@@ -136,7 +136,7 @@ java.lang.IllegalStateException: empty marker stack: trying to close marker at p
 Since the user actions are executed in sequence, you have to put *logMark()* before
 the *endLastMatch()* action in the user actions.
 
-# enable vim ragel syntax highlighting
+# enable syntax highlighting for ragel in vim
 
 1. copy ragel.vim to *~/.vim/syntax*
 2. create/modify file *~/.vim/filetype.vim* and add:
@@ -149,10 +149,9 @@ augroup END
 
 # ragel specifics
 
-## priorites 
+## priorities 
 
 - unnamed priorities are valid for the whole instantiation of a maschine !
-
 
 ## guarded concatenation
 
