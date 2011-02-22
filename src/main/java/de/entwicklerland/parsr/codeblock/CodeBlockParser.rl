@@ -17,10 +17,6 @@ public void parse(char[] data) {
 
   %%{
     include attributes "Attributes.rl";
-  
-	action endLastMatch {
-	  endLastMatch();
-	}
 
 	action writeBack {
 	  write();	
@@ -35,22 +31,22 @@ public void parse(char[] data) {
 	}
     
     action beginMatchCode {
-    	beginMatch("code");
+    	beginScan();
     }
+      
+	action endMatchCode {
+	  endScan();
+	}
     
-    action logMark {
-    	logMark();
-    }
-
     tag_name = 'blog:pre';
-    opening_tag = '<' tag_name . space+ . attrs . '>' %beginMatchCode;
-    closing_tag = '</' tag_name '>' >endLastMatch;
+    opening_tag = '<' tag_name . space+ . attrs . '>';
+    closing_tag = '</' tag_name '>';
     other = any;
     #main := (opening_tag | closing_tag | other)*;
     main := |*
-    	opening_tag => logMark;
-    	closing_tag => logMark;
-    	other => logMark;
+    	opening_tag => beginMatchCode;
+    	closing_tag => endMatchCode;
+    	other => writeBack;
     *|;
 	
   }%%

@@ -45,20 +45,20 @@ public abstract class Parser {
 	  /* Current state. This must be an integer and it should persist across invocations of the
 	  machine when the data is broken into blocks that are processed independently. This variable
 	  may be modified from outside the execution loop, but not from within. */
-	 protected int cs;
-	 protected int p;
-	 protected int eof;
+	protected int cs;
+	protected int p;
+	protected int eof;
 	 
 	 // scanner variables
-	 protected int ts;
-	 protected int te;
-	 protected int act;
+	protected int ts; // scanner match start pointer
+	protected int te;
+	protected int act;
 
-	 public void setCs(int cs) {
+	public void setCs(int cs) {
 		this.cs = cs;
 	}
 	 
-	 public Map<String, Set<ContentHandler>> getContentHandlers() {
+	public Map<String, Set<ContentHandler>> getContentHandlers() {
 		 return contentHandlers;
 	 }
 	 
@@ -93,6 +93,22 @@ public abstract class Parser {
 	public void beginMatch(String event) {
 		LOG.debug("begin match: label[{}], state[{}], position[{}]", new Object[]{event, cs, p});
 		this.markerStack.add(new Match(event, buffer, p));
+	}
+	
+	public void beginScan() {
+		LOG.debug("begin scan match: position[{}]", te);
+		this.markerStack.add(new Match("code", buffer, te));
+	}
+	
+	public void endScan() {
+		Match match = this.markerStack.get(this.markerStack.size()-1);
+		LOG.debug("end scan: position[{}]", ts);
+		match.setEndPointer(ts);
+		try {
+			notifyHandlers(match);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public void endLastMatch(String event) {
